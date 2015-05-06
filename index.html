@@ -21,6 +21,18 @@
    <!-- ## Backbone code -->
    <script>
       (function($) {
+         var Item = Backbone.Model.extend({
+            defaults: {
+               part1: 'Hello',
+               part2: 'World',
+               part3: '!'
+            }
+         });
+
+         var List = Backbone.Collection.extend({
+            model: Item
+         });
+
          var ListView = Backbone.View.extend({
             el: $('body'),                                           //tells this object to use the existing 'body' ele
 
@@ -29,20 +41,38 @@
             },
 
             initialize: function(){
-               _.bindAll(this, 'render', 'addItem');                 //sets context for 'this' within methods;
+               _.bindAll(this, 'render', 'addItem', 'appendItem');                 //sets context for 'this' within methods;
                                                                      //every function that uses 'this' as the current object should be listed here
+               this.collection = new List();
+               this.collection.bind('add', this.appendItem);         //binds the collection 'add' call to my 'appendItem' function
                this.counter = 0;                                     //counter for # of list items
                this.render();                                        //calls object to render itself
             },
 
             render: function(){
+               var self = this;
                $(this.el).append("<button id='add'>Add item</button>");
                $(this.el).append("<ul><li>The OG Hello world!</li></ul>");
+               _(this.collection.models).each(                         //in case collection is not empty
+                  function(item){
+                     self.appendItem(item);
+                  }, this);
             },
 
             addItem: function(){
                this.counter++;
-               $('ul', this.el).append("<li>Hello world " + this.counter + "</li>");
+               var item = new Item();
+
+               item.set({
+                  part3: " " + this.counter + item.get('part3')
+               });
+
+               // $('ul', this.el).append("<li>Hello world " + this.counter + "</li>");
+               this.collection.add(item);                               //add item to collection; view updates on 'add' call
+            },
+
+            appendItem: function(item){
+               $('ul', this.el).append("<li>" + item.get('part1') + item.get('part2') + item.get('part3') + "</li>");
             }
          });
 
