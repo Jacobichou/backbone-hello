@@ -33,6 +33,19 @@
             model: Item
          });
 
+         var ItemView = Backbone.View.extend({
+            tagName: 'li',
+
+            initialize: function(){
+               _.bindAll(this, 'render');
+            },
+
+            render: function(){
+               $(this.el).html('<span>' + this.model.get('part1') + ' ' + this.model.get('part2') + ' ' + this.model.get('part3') + '</span');
+               return this;                                          //for chainable calls; .render().el
+            }
+         });
+
          var ListView = Backbone.View.extend({
             el: $('body'),                                           //tells this object to use the existing 'body' ele
 
@@ -72,7 +85,12 @@
             },
 
             appendItem: function(item){
-               $('ul', this.el).append("<li>" + item.get('part1') + item.get('part2') + item.get('part3') + "</li>");
+               var itemView = new ItemView({
+                  model: item
+               });
+
+               // $('ul', this.el).append("<li>" + item.get('part1') + item.get('part2') + item.get('part3') + "</li>");
+               $('ul', this.el).append(itemView.render().el);
             }
          });
 
